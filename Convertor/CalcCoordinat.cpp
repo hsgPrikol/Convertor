@@ -31,7 +31,13 @@ double CalcCoordinat::getCalcBase()
 
 double CalcCoordinat::getDistanceSide()
 {
-	this->distanceSide = (getCalcBase() / sin(this->getAnglePurpose() / this->radian)) * sin(this->okoLeft->getAngleOko() / this->radian);
+	if (this->okoLeft->getAngleOko() > 90)
+	{
+		int angle = this->okoLeft->getAngleOko() - 90;
+		this->distanceSide = (getCalcBase() / sin(this->getAnglePurpose() / this->radian)) * (sin(angle / this->radian) + sin(90 / radian));
+	}
+	else
+		this->distanceSide = (getCalcBase() / sin(this->getAnglePurpose() / this->radian)) * sin(this->okoLeft->getAngleOko() / this->radian);
 	return this->distanceSide;
 }
 
