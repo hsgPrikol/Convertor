@@ -217,8 +217,8 @@ GsKr Convertor::CK42ToGsKr(CK42 ck42)
 
 int main()
 {
-    /*std::cout << std::fixed;
-    std::cout.precision(10);*/
+    std::cout << std::fixed;
+    std::cout.precision(10);
     Convertor convertor;
 
     WGS84 wgs1(37.346485, 44.878697,0);
@@ -228,9 +228,9 @@ int main()
     ck1 = convertor.WGS84ToCK42(wgs1);
     CK42 ck2;
     ck2 = convertor.WGS84ToCK42(wgs2);
-    CK42 test(44.938004,37.309905, 0);
+    //CK42 test(44.938004,37.309905, 0);
     GsKr gskr1;
-    gskr1 = convertor.CK42ToGsKr(test);
+    gskr1 = convertor.CK42ToGsKr(ck1);
     GsKr gskr2;
     gskr2 = convertor.CK42ToGsKr(ck2);
     
@@ -239,7 +239,7 @@ int main()
     std::cout << gskr1.h << " " << gskr2.h << "\n";
 
     Oko* okoRight = new Oko(gskr1.x, gskr1.y, gskr1.h, 0, 75);
-    Oko* okoLeft= new Oko(gskr2.x, gskr2.y, gskr2.h, 0, 75);
+    Oko* okoLeft= new Oko(gskr2.x, gskr2.y, gskr2.h, 0, 95);
 
     CalcCoordinat* calcCoordinat = new CalcCoordinat(okoRight, okoLeft);
  
