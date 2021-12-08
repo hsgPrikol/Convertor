@@ -55,3 +55,5 @@ double CalcCoordinat::getNewCoordinateY()
 	return this->coordinatePurposeY;
 }
 
+
+
