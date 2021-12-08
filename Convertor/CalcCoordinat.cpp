@@ -50,6 +50,7 @@ double CalcCoordinat::getNewCoordinateX()
 
 double CalcCoordinat::getNewCoordinateY()
 {
+
 	double deltaY = sin(this->okoRight->getAngleOko() / this->radian) * this->getDistanceSide();
 	this->coordinatePurposeY = this->okoRight->getCoordinateYGsKr() + deltaY;
 	return this->coordinatePurposeY;
