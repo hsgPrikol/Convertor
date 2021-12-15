@@ -236,10 +236,9 @@ int main()
     
     std::cout << gskr1.x << " " << gskr2.x << "\n";
     std::cout << gskr1.y << " " << gskr2.y << "\n";
-    std::cout << gskr1.h << " " << gskr2.h << "\n";
-
+    
     Oko* okoRight = new Oko(gskr1.x, gskr1.y, gskr1.h, 0, 75);
-    Oko* okoLeft= new Oko(gskr2.x, gskr2.y, gskr2.h, 0, 95);
+    Oko* okoLeft= new Oko(gskr2.x, gskr2.y, gskr2.h, 0, 75);
 
     CalcCoordinat* calcCoordinat = new CalcCoordinat(okoRight, okoLeft);
  
@@ -248,7 +247,6 @@ int main()
     std::cout << "Angle\t" << calcCoordinat->getAnglePurpose() << "\n";
     std::cout << "New X\t" << calcCoordinat->getNewCoordinateX() << "\n";
     std::cout << "New Y\t" << calcCoordinat->getNewCoordinateY() << "\n";
-    
  }
 
 // Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
