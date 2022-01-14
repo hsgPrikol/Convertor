@@ -23,6 +23,5 @@ public:
 	double getAnglePurpose();
 	double getNewCoordinateX();
 	double getNewCoordinateY();
-
 };
 
