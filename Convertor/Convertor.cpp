@@ -139,7 +139,7 @@ double SK42_WGS84_Long(double Bd, double Ld, double H)
 // Функции преобразования в координатную проекцию Гаусса-Крюгера
 double SK42BTOX(double B, double L, double H)
 {
-    int No = (6 + L) / 6;
+    double No = (6 + L) / 6;
     double Lo = (L - (3 + 6 * (No - 1))) / 57.29577951;
     double Bo = B * Pi / 180;
     double Xa = pow(Lo, 2) * (109500 - 574700 * pow(sin(Bo), 2) + 863700 * pow(sin(Bo), 4) - 398600 * pow(sin(Bo), 6));
@@ -150,7 +150,7 @@ double SK42BTOX(double B, double L, double H)
 }
 double SK42LTOY(double B, double L, double H)
 {
-    int No = (6 + L) / 6;
+    double No = (6 + L) / 6;
     double Lo = (L - (3 + 6 * (No - 1))) / 57.29577951;
     double Bo = B * Pi / 180;
     double Ya = pow(Lo, 2) * (79690 - 866190 * pow(sin(Bo), 2) + 1730360 * pow(sin(Bo), 4) - 945460 * pow(sin(Bo), 6));
@@ -160,8 +160,8 @@ double SK42LTOY(double B, double L, double H)
 }
 
 double SK42XTOB(double X, double Y, double Z)
-{
-    int No = pow(Y * 10, -6);
+{ 
+    double No = pow(Y * 10, -6);
     double Bi = X / 6367558.4968;
     double Bo = Bi + sin(Bi * 2) * (0.00252588685 - 0.0000149186 * pow(sin(Bi), 2) + 0.00000011904 * pow(sin(Bi), 4));
     double Zo = (Y - (10 * No + 5) * 100000) / (6378245 * cos(Bo));
@@ -174,7 +174,7 @@ double SK42XTOB(double X, double Y, double Z)
 
 double SK42YTOL(double X, double Y, double Z)
 {
-    int No = pow(Y * 10, -6);
+    double No = pow(Y * 10, -6);
     double Bi = X / 6367558.4968;
     double Bo = Bi + sin(Bi * 2) * (0.00252588685 - 0.0000149186 * pow(sin(Bi), 2) + 0.00000011904 * pow(sin(Bi), 4));
     double Zo = (Y - (10 * No + 5) * 100000) / (6378245 * cos(Bo));
@@ -207,7 +207,9 @@ GsKr Convertor::CK42ToGsKr(CK42 ck42)
 {
     GsKr gk;
     gk.x = SK42BTOX(ck42.latt, ck42.longt, ck42.h);
+    //gk.x = gk.x - 500000;
     gk.y = SK42LTOY(ck42.latt, ck42.longt, ck42.h);
+    //gk.y = gk.y - 500000;
     gk.h = ck42.h;
     return gk;
 }
@@ -218,8 +220,8 @@ int main()
     std::cout.precision(10);
     Convertor convertor;
 
-    WGS84 wgs1(96.350896, 43.741049,0);
-    WGS84 wgs2(97.075381, 44.006552, 0);
+    WGS84 wgs1(44.89930111, 37.35263611, 0);
+    WGS84 wgs2(44.89930111, 37.35263611, 0);
 
     CK42 ck1;
     ck1 = convertor.WGS84ToCK42(wgs1);
@@ -230,7 +232,7 @@ int main()
     gskr1 = convertor.CK42ToGsKr(ck1);
     GsKr gskr2;
     gskr2 = convertor.CK42ToGsKr(ck2);
-    
+     
     std::cout << gskr1.x << " " << gskr2.x << "\n";
     std::cout << gskr1.y << " " << gskr2.y << "\n";
     

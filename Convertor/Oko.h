@@ -24,4 +24,3 @@ public:
 	double getAngleOko();
 	double getHeight();
 };
-

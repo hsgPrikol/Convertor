@@ -25,7 +25,7 @@ CalcCoordinat::CalcCoordinat(Oko* okoRight, Oko* okoLeft)
 
 double CalcCoordinat::getCalcBase()
 {
-	this->base = sqrt((pow(okoRight->getCoordinateXGsKr() - okoLeft->getCoordinateXGsKr(), 2) + (pow(okoRight->getCoordinateYGsKr() - okoLeft->getCoordinateYGsKr(), 2))));
+	this->base = sqrt ((pow(okoRight->getCoordinateXGsKr() - okoLeft->getCoordinateXGsKr(), 2) + (pow(okoRight->getCoordinateYGsKr() - okoLeft->getCoordinateYGsKr(), 2))));
 	return this->base;
 }
 
