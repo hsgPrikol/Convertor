@@ -142,10 +142,12 @@
     <ClCompile Include="CalcCoordinat.cpp" />
     <ClCompile Include="Convertor.cpp" />
     <ClCompile Include="Oko.cpp" />
+    <ClCompile Include="WGS84toPZ90_Gaus.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CalcCoordinat.h" />
     <ClInclude Include="Oko.h" />
+    <ClInclude Include="WGS84toPZ90_Gaus.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

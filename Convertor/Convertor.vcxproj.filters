@@ -24,12 +24,18 @@
     <ClCompile Include="CalcCoordinat.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="WGS84toPZ90_Gaus.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Oko.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="CalcCoordinat.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="WGS84toPZ90_Gaus.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

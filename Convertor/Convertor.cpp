@@ -1,10 +1,15 @@
 ﻿// Convertor.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
 //
 
+//#define _USE_MATH_DEFINES
+
 #include <iostream>
+
 #include <math.h>
 #include "Oko.h"
 #include "CalcCoordinat.h"
+#include "WGS84toPZ90_Gaus.h"
+
 
 class CK42
 {
@@ -24,7 +29,7 @@ class GsKr
 {
 public:
     double x, y, h;
-
+      
     GsKr() : x(0), y(0), h(0) {};
 };
 
@@ -38,8 +43,34 @@ public:
         this->latt = latt;
         this->h = h;
     }
+
+    double X_WGS84 = 0;
+    double Y_WGS84 = 0;
+    double Z_WGS84 = 0;
+
     double longt, latt, h;
 };
+
+
+
+class PZ90
+{
+public:
+    PZ90() : longt(0), latt(0), h(0) {};
+    PZ90(double longt, double latt, double h)
+    {
+        this->longt = longt;
+        this->latt = latt;
+        this->h = h;
+    }
+    double longt, latt, h;
+
+
+    double X_PZ90= 0;
+    double Y_PZ90 = 0;
+    double Z_PZ90 = 0;
+};
+
 
 class Convertor
 {
@@ -48,6 +79,49 @@ public:
     ~Convertor(void);
     CK42 WGS84ToCK42(WGS84 wgs84);
     GsKr CK42ToGsKr(CK42 ck42);
+
+    GsKr CK42ToGsKr(PZ90 ck42);
+
+    const double Pi = 3.14159265358979;
+
+    //parameters
+
+    const double radian = Pi / 180;
+
+    double deltaX = -0.013; //m
+    double deltaY = 0.106; //m 
+    double deltaZ = 0.022; //m
+
+    double omegaX = -0.00230; // radian
+    double omegaY = 0.00354;// radian
+    double omegaZ = 0.00421;// radian
+
+    double scaleM = -0.000000008; // масштабный коэффициент
+
+    double alpha = 1 / 298.257223563;
+
+    double bigHalfOS_A = 6378137;
+
+    double koefficient = 0.999999992;
+
+    double firstMatrix[3][3] = {//+
+         {1 * koefficient, -2.041066 * pow(10, -8) * koefficient, -1.716240 * pow(10, -8) * koefficient},
+         {2.041066 * pow(10, -8) * koefficient, 1 * koefficient, -1.115071 * pow(10, -8) * koefficient},
+        {1.716240 * pow(10, -8) * koefficient, 1.115071 * pow(10, -8) * koefficient, 1 * koefficient}
+    };
+
+    double secondMatrix[3][1] = {
+        {-0.013},
+        {0.106},
+        {0.022}
+    };
+
+    double secondM[3] = { -0.013 , 0.106, 0.022 };
+    
+    WGS84 WGS84ToWGS84_XYZ(WGS84 wgs84);//+
+
+    PZ90 WGS84ToPZ90(WGS84 wgs84);
+
 };
 
 
@@ -155,7 +229,7 @@ double SK42LTOY(double B, double L, double H)
     double Bo = B * Pi / 180;
     double Ya = pow(Lo, 2) * (79690 - 866190 * pow(sin(Bo), 2) + 1730360 * pow(sin(Bo), 4) - 945460 * pow(sin(Bo), 6));
     double Yb = pow(Lo, 2) * (270806 - 1523417 * pow(sin(Bo), 2) + 1327645 * pow(sin(Bo), 4) - 21701 * pow(sin(Bo), 6) + Ya);
-    double Yc = pow(Lo, 2) * (1070204.16 - 2136826.66 * pow(sin(Bo), 2) + 17.98 * pow(sin(Bo), 4) - 11.99 * pow(sin(Bo), 6) + Yb);
+    double Yc = pow(Lo, 2) * (1070204.16 - 2136826.66 * pow(sin(Bo), 2) + 17.98 * pow(sin(Bo), 4) - 11.99 * pow(sin(Bo), 6) + Yb);  
     return (5 + 10 * No) * 100000 + Lo * cos(Bo) * (6378245 + 21346.1415 * pow(sin(Bo), 2) + 107.159 * pow(sin(Bo), 4) + 0.5977 * pow(sin(Bo), 6) + Yc);
 }
 
@@ -214,36 +288,167 @@ GsKr Convertor::CK42ToGsKr(CK42 ck42)
     return gk;
 }
 
-int main()
+GsKr Convertor::CK42ToGsKr(PZ90 ck42)
 {
+    GsKr gk;
+    gk.x = SK42BTOX(ck42.latt, ck42.longt, ck42.h);
+    //gk.x = gk.x - 500000;
+    gk.y = SK42LTOY(ck42.latt, ck42.longt, ck42.h);
+    //gk.y = gk.y - 500000;
+    gk.h = ck42.h;
+    return gk;
+
+
+    //GsKr gk;
+    //gk.x = SK42BTOX(ck42.latt, ck42.longt, 0);
+    ////gk.x = gk.x - 500000;
+    //gk.y = SK42LTOY(ck42.latt, ck42.longt, 0);
+    ////gk.y = gk.y - 500000;
+    //gk.h = ck42.h;
+    //return gk;
+}
+
+WGS84 Convertor::WGS84ToWGS84_XYZ(WGS84 wgs84)
+{
+   
+
+    double e = (2 * alpha) - (alpha * alpha); //+
+
+    double N = bigHalfOS_A / (sqrt((1 - (e) * pow(sin(wgs84.longt * radian), 2))));
+
+    double sinw = sqrt((1 - (e)*pow(sin(wgs84.longt * radian), 2)));
+
+    double tempCosLat = cos(wgs84.longt * radian);
+    double tempCoslong = cos(wgs84.latt * radian) ;
+    double tempSinLat = sin(wgs84.longt * radian) ;
+    double tempSinLongt = sin(wgs84.latt* radian) ;
+
+
+    wgs84.X_WGS84 = (N + wgs84.h) * tempCosLat * tempCoslong;
+    wgs84.Y_WGS84 = (N + wgs84.h) * tempCosLat * tempSinLongt;
+    wgs84.Z_WGS84 = ((1 - e) * N + wgs84.h) * tempSinLat;
+
+    return wgs84;
+}
+
+PZ90 Convertor::WGS84ToPZ90(WGS84 wgs84)
+{
+    PZ90 pz90;
+
+    double resultMatrix[3][1] = { {0}, {0}, {0} };
+
+    double mainMatrix[3] = { wgs84.X_WGS84, wgs84.Y_WGS84, wgs84.Z_WGS84 };
+
+    double mainMatrixXYZ[3][1] = {
+        {wgs84.X_WGS84},
+        {wgs84.Y_WGS84},
+        {wgs84.Z_WGS84}
+    };
+
+    for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 1; col++) {
+            // Multiply the row of A by the column of B to get the row, column of product.
+            for (int inner = 0; inner < 3; inner++) {
+                resultMatrix[row][col] += firstMatrix[row][inner] * mainMatrixXYZ[inner][col];
+            }
+        }
+    }
+
+    //for (int row = 0; row < 3; row++) {
+    //    
+    //    for (int col = 0; col < 3; col++) {
+    //            resultMatrix[row][col] += firstMatrix[row][col] * mainMatrix[col];
+
+    //        //std::cout << product[row][col] << "  ";
+    //    }
+    //    //std::cout << "\n";
+    //}
+
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 1; j++)
+            resultMatrix[i][j] = resultMatrix[i][j] + secondM[j];
+
+    pz90.X_PZ90 = resultMatrix[0][0];
+    pz90.Y_PZ90 = resultMatrix[1][0];
+    pz90.Z_PZ90 = resultMatrix[2][0];
+
+
+    return pz90;
+}
+
+
+    //pz90.X_PZ90 = wgs84.X_WGS84 + this->deltaX - this->omegaY * wgs84.Z_WGS84 + this->omegaZ * wgs84.Y_WGS84 + this->scaleM * wgs84.X_WGS84;
+
+
+
+    //pz90.Y_PZ90 = wgs84.Y_WGS84 + this->deltaY + this->omegaX * wgs84.Z_WGS84 - this->omegaZ * wgs84.X_WGS84 + this->scaleM * wgs84.Y_WGS84;
+
+
+
+    //pz90.Z_PZ90 = wgs84.Z_WGS84 + this->deltaZ - this->omegaX * wgs84.Y_WGS84 + this->omegaY * wgs84.X_WGS84 + this->scaleM * wgs84.Z_WGS84;
+
+
+int main()
+{    
     std::cout << std::fixed;
     std::cout.precision(10);
-    Convertor convertor;
+    WGS84toPZ90_Gaus wgs(50.45519, 30.52973);
 
-    WGS84 wgs1(44.89930111, 37.35263611, 0);
-    WGS84 wgs2(44.89930111, 37.35263611, 0);
+    wgs.calcPZ90_X_Y();
+    std::cout << "X: " << wgs.getX_Pz90() << "\n";
+    std::cout << "Y: " << wgs.getY_Pz90() << "\n";
 
-    CK42 ck1;
-    ck1 = convertor.WGS84ToCK42(wgs1);
-    CK42 ck2;
-    ck2 = convertor.WGS84ToCK42(wgs2);
-    //CK42 test(44.938004,37.309905, 0);
-    GsKr gskr1;
-    gskr1 = convertor.CK42ToGsKr(ck1);
-    GsKr gskr2;
-    gskr2 = convertor.CK42ToGsKr(ck2);
-     
-    std::cout << gskr1.x << " " << gskr2.x << "\n";
-    std::cout << gskr1.y << " " << gskr2.y << "\n";
+
+
+    return 0;
+
+    //Convertor convertor;
+
+    ////WGS84 wgs84right(37.350719, 44.899007, 0);
+    ////WGS84 wgs84left(37.349291, 44.899298, 0);
+    ////44.899829, 37.358395
+    //WGS84 wgs84right(44.899829, 37.358395, 0);
+    //WGS84 wgs84left(44.899833, 37.359399, 0);
+
+    //wgs84right = convertor.WGS84ToWGS84_XYZ(wgs84right);
+    //wgs84left = convertor.WGS84ToWGS84_XYZ(wgs84left);
+
+    //PZ90 pz90right = convertor.WGS84ToPZ90(wgs84right);
+    //PZ90 pz90left = convertor.WGS84ToPZ90(wgs84left);
+
+    //Oko* okoRight = new Oko(pz90right.X_PZ90, pz90right.Y_PZ90, pz90right.Z_PZ90, 0, 30);
+    //Oko* okoLeft = new Oko(pz90left.X_PZ90, pz90left.Y_PZ90, pz90left.Z_PZ90, 0, 30);
+
+    //CalcCoordinat* calcCoordinat = new CalcCoordinat(okoRight, okoLeft);
+
+    //GsKr gs1;
+
+    //gs1 = convertor.CK42ToGsKr(pz90right);
+
+
+    //std::cout << "Base\t" << calcCoordinat->getCalcBase() << "\n";
+    //std::cout << "Side\t" << calcCoordinat->getDistanceSide() << "\n";
+    //std::cout << "Angle\t" << calcCoordinat->getAnglePurpose() << "\n";
+    //std::cout << "New X\t" << calcCoordinat->getNewCoordinateX() << "\n";
+    //std::cout << "New Y\t" << calcCoordinat->getNewCoordinateY() << "\n";
+
     
-    Oko* okoRight = new Oko(gskr1.x, gskr1.y, gskr1.h, 0, 75);
-    Oko* okoLeft= new Oko(gskr2.x, gskr2.y, gskr2.h, 0, 75);
 
-    CalcCoordinat* calcCoordinat = new CalcCoordinat(okoRight, okoLeft);
- 
-    std::cout << "Base\t" <<calcCoordinat->getCalcBase() << "\n";
-    std::cout << "Side\t" << calcCoordinat->getDistanceSide() << "\n";
-    std::cout << "Angle\t" << calcCoordinat->getAnglePurpose() << "\n";
-    std::cout << "New X\t" << calcCoordinat->getNewCoordinateX() << "\n";
-    std::cout << "New Y\t" << calcCoordinat->getNewCoordinateY() << "\n";
+    //WGS84 wgs1(37.618, 55.752, 0);
+    //WGS84 wgs2(44.89930111, 37.35263611, 0);
+
+    //CK42 ck1;
+    //ck1 = convertor.WGS84ToCK42(wgs1);
+    //CK42 ck2;
+    //ck2 = convertor.WGS84ToCK42(wgs2);
+    //CK42 test(44.938004,37.309905, 0);
+    //GsKr gskr1;
+    //gskr1 = convertor.CK42ToGsKr(ck1);
+    //GsKr gskr2;
+    //gskr2 = convertor.CK42ToGsKr(ck2);
+    // 
+    //std::cout << gskr1.x << " " << gskr2.x << "\n";
+    //std::cout << gskr1.y << " " << gskr2.y << "\n";
+    
+
  }

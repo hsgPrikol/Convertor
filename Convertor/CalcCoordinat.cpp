@@ -60,6 +60,3 @@ double CalcCoordinat::getNewCoordinateY()
 	this->coordinatePurposeY = this->okoRight->getCoordinateYGsKr() + deltaY;
 	return this->coordinatePurposeY;
 }
-
-
-
