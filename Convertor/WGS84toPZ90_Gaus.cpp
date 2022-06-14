@@ -31,23 +31,25 @@ void WGS84toPZ90_Gaus::calcPZ90_X_Y()
 	this->L0 = (6 * n - 3) * Pi / 180;
 	this->l = L_radian - L0;
 
-	double N = a * pow((1 - e2 * pow((sin(B_radian)), 2)), -1 / 2);
+	float tmp = 0.00002480158;
 
-	double a2 = 1 / 2 * N * sin(B_radian) * cos(B_radian);
+	double N = a * pow((1 - e2 * pow((sin(B_radian)), 2)), -0.5);
 
-	double a4 = 1 / 24 * N * sin(B_radian) * pow(cos(B_radian), 3) * (5 - pow(tan(B_radian), 2) + 9 * pow(nu, 2) + 4 * pow(nu, 4));
+	double a2 = 0.5 * N * sin(B_radian) * cos(B_radian);
 
-	double a6 = 1 / 720 * N * sin(B_radian) * pow(cos(B_radian), 5) * (61 - 58 * pow(tan(B_radian), 2) + pow(B_radian, 4) + 270 * pow(nu, 2) - 330 * pow(nu, 2) * pow(tan(B_radian), 2));
+	double a4 = 0.04166 * N * sin(B_radian) * pow(cos(B_radian), 3) * (5 - pow(tan(B_radian), 2) + 9 * pow(nu, 2) + 4 * pow(nu, 4));
 
-	double a8 = 1 / 40320 * N * sin(B_radian) * pow(cos(B_radian), 7) * (1385 - 3111 * pow(tan(B_radian), 2) + 543 * pow(tan(B_radian), 4) - pow(tan(B_radian), 6));
+	double a6 = 1.0/720.0 * N * sin(B_radian) * pow(cos(B_radian), 5) * (61.0 - 58.0 * pow(tan(B_radian), 2) + pow(tan(B_radian), 4) + 270.0 * pow(nu, 2) - 330.0 * pow(nu, 2) * pow(tan(B_radian), 2));
+
+	double a8 = 1.0/40320.0 * N * sin(B_radian) * pow(cos(B_radian), 7) * (1385.0 - 3111.0 * pow(tan(B_radian), 2) + 543.0 * pow(tan(B_radian), 4) - pow(tan(B_radian), 6));
 
 	double b1 = N * cos(B_radian);
 
-	double b3 = 1 / 6 * N * pow(cos(B_radian), 3) * (1 - pow(tan(B_radian), 2) + pow(nu, 2));
+	double b3 = 1.0/6.0 * N * pow(cos(B_radian), 3) * (1.0 - pow(tan(B_radian), 2) + pow(nu, 2));
 
-	double b5 = 1 / 120 * N * pow(cos(B_radian), 5) * (5 - 18 * pow(tan(B_radian), 2) + pow(tan(B_radian), 4) + 14 * pow(nu, 2) - 58 * pow(nu, 2) * pow(tan(B_radian), 2));
+	double b5 = 1.0 / 120.0 * N * pow(cos(B_radian), 5) * (5.0 - 18.0 * pow(tan(B_radian), 2) + pow(tan(B_radian), 4) + 14.0 * pow(nu, 2) - 58.0 * pow(nu, 2) * pow(tan(B_radian), 2));
 
-	double b7 = 1 / 5040 * N * pow(cos(B_radian), 7) * (61 - 479 * pow(tan(B_radian), 2) + 179 * pow(tan(B_radian), 4) - pow(tan(B_radian), 6));
+	double b7 = 1.0 / 5040.0 * N * pow(cos(B_radian), 7) * (61 - 479 * pow(tan(B_radian), 2) + 179 * pow(tan(B_radian), 4) - pow(tan(B_radian), 6));
 
 	this->S = C0_WGS84 * B_radian - C2_WGS84 * sin(2 * B_radian) + C4_WGS84 * sin(4 * B_radian) - C6_WGS84 * sin(6 * B_radian);
 

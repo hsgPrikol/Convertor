@@ -10,11 +10,11 @@ private:
 	const double compression = 298.257223563; // Сжатие эллипса
 	const double f = 1 / compression;
 
-	const int a = 6378137; // Большая полуось
-	const int b = a * (1 - f); // Малая полуось
+	const double a = 6378137; // Большая полуось
+	const double b = a * (1 - f); // Малая полуось
 
 	const double e2 = 1 - ((b * b) / (a * a)); // Квадрат эксонтрицитета
-	const double e_ = ((b * b) / (a * a)) - 1; // Второй эксонтрицитет
+	const double e_ = ((a * a) / (b * b)) - 1; // Второй эксонтрицитет
 	
 	double nu;
 
